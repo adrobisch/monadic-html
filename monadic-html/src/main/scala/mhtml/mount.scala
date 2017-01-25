@@ -14,9 +14,10 @@ object mount {
 
   private def mountNode(parent: DomNode, child: XmlNode, startPoint: Option[DomNode], config: MountSettings): Cancelable =
     child match {
-      case e @ Elem(label, metadata, ns, child @ _*) =>
+      case e @ Elem(_, label, metadata, scope, child @ _*) =>
         config.inspectElement(label)
-        val elemNode = ns.map(dom.document.createElementNS(_, label)).getOrElse(dom.document.createElement(label))
+        println(s"$label:$scope${scope.get.url}")
+        val elemNode = e.namespace.map(dom.document.createElementNS(_, label)).getOrElse(dom.document.createElement(label))
         val cancelMetadata = metadata.map { m => mountMetadata(elemNode, m, m.value.asInstanceOf[Atom[_]].data, config) }
         val cancelChild = child.map(c => mountNode(elemNode, c, None, config))
         parent.mountHere(elemNode, startPoint)
